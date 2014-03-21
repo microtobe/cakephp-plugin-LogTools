@@ -1,24 +1,12 @@
 <?php
-/**
- * LogTools Tools Component
- *
- * Copyright (c) ZendForum, Inc. (http://www.zendforum.com)
- *
- * Licensed under The MIT License
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright (c) ZendForum, Inc. (http://www.zendforum.com)
- * @link          http://www.zendforum.com
- * @since         LogTools 0.1
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
- */
+App::uses('Validation', 'Utility');
 
 /**
- * Class ToolsComponent
+ * Class LogFilesComponent
  *
- * @since         LogTools 0.1
+ * @since         LogFiles 0.1
  */
-class ToolsComponent extends Component {
+class LogFilesComponent extends Component {
 
 /**
  * Settings for the Component
@@ -31,10 +19,11 @@ class ToolsComponent extends Component {
  * @var array
  */
 	public $settings = array(
-			'autoRun' => false,
+			'enable' => false,
 			'urlEnable' => false,
-			'emailConfig' => '',
-			'email' => '',
+			'autoClear' => true,
+			'emailConfig' => 'send',
+			'to' => '',
 	);
 
 /**
@@ -52,18 +41,18 @@ class ToolsComponent extends Component {
 	public $components = array('RequestHandler', 'Session');
 
 /**
- * CacheKey used for the cache file.
+ * CacheKey for the cache file.
  *
  * @var string
  */
-	public $cacheKey = 'log_tools_cache';
+	public $cacheKey = 'log_files_cache';
 
 /**
- * Duration of the log tools cache
+ * Duration of the log files cache
  *
  * @var string
  */
-	public $cacheDuration = '+24 hours';
+	protected $cacheDuration = '+10 hours';
 
 /**
  * Status whether component is enable or disable
@@ -88,16 +77,13 @@ class ToolsComponent extends Component {
  */
 	public function __construct(ComponentCollection $collection, $settings = array()) {
 		$this->logPath = ROOT . DS . APP_DIR . DS . 'tmp/logs/';
-		$settings = array_merge((array)Configure::read('LogTools'), $settings);
-		
 		$this->controller = $collection->getController();
 		
 		parent::__construct($collection, array_merge($this->settings, (array)$settings));
-		$this->cacheKey .= $this->Session->read('Config.userAgent');
-		if ($this->settings['autoRun']) {
+// 		$this->cacheKey .= '_' . $this->Session->read('Config.userAgent');
+		if ($this->settings['enable']) {
 			$this->enabled = true;
 		}
-		return;
 	}
 	
 	/**
@@ -108,41 +94,45 @@ class ToolsComponent extends Component {
 		if ($this->_checkState()) {
 			$this->enabled = false;
 		}
-		
 		if ($this->settings['urlEnable'] && isset($this->controller->request->query['logSend']) && ($this->controller->request->query['logSend'] === 'true')) {
 			$this->enabled = true;
 		}
 		
-		if ($this->enabled) {
-// 			debug(Cache::read($this->cacheKey, 'log_tools'));
+		if ($this->enabled && Validation::email($this->settings['to']) && $this->_checkFileSize()) {
+// 			debug(Cache::read($this->cacheKey, 'log_files'));
 			$this->_saveState();
-			CakeLog::write('debug', serialize($this->_sendEmail($this->settings['email'], $this->settings['emailConfig'])));
-			if ($this->settings['autoClear'] || ($this->settings['urlEnable'] && isset($this->controller->request->query['logClear']) && ($this->controller->request->query['logClear'] === 'true'))) {
+			CakeLog::write('debug', serialize($this->_sendEmail($this->settings['to'], $this->settings['emailConfig'])));
+			
+			//清空log文件
+			if ($this->settings['autoClear']) {
 				$this->_clearLog();
 			}
 		}
-		return;
 	}
 	
 	/**
 	 * Send email, it contains log files as attachments.
 	 * @param string $to
 	 */
-	protected function _sendEmail($to = '', $emailConfig = 'log') {
-		if (is_dir($this->logPath)) {
+	protected function _sendEmail($to = '', $emailConfig = '') {
+		if (is_dir($this->logPath) && !empty($to) && !empty($emailConfig)) {
 			App::uses('CakeEmail', 'Network/Email');
 			$email = new CakeEmail();
-// 			$email->emailFormat('html');
 			if (empty($emailConfig)) {
-				$emailConfig = 'log';
+				$emailConfig = 'default';
 			}
 			$email->config($emailConfig);
-			if (!empty($to)) {
-				$email->to("$to");
+			$email->to("$to");
+			$email->subject($this->controller->request->host() . '--Log files--' . date('Y-m-d H:i:s'));
+			$logFiles = array();
+			if (file_exists($this->logPath . 'debug.log')) {
+				$logFiles[] = $this->logPath . 'debug.log';
 			}
-			$email->subject(env('HTTP_HOST') . '--Log files--' . date('Y-m-d H:i:s'));
-			$email->attachments(array($this->logPath . 'debug.log', $this->logPath . 'error.log'));
-			return $email->send('Log files are in the attachments.');
+			if (file_exists($this->logPath . 'error.log')) {
+				$logFiles[] = $this->logPath . 'error.log';
+			}
+			$email->attachments($logFiles);
+			return $email->send('Url: ' . $this->controller->request->here . '<br>Log files are in the attachments.');
 		}
 	}
 	
@@ -175,6 +165,22 @@ class ToolsComponent extends Component {
 		$file->close();
 		return $result;
 	}
+	
+	/**
+	 * This function is get file size
+	 * @return bool
+	 */
+	private function _checkFileSize() {
+		App::uses('File', 'Utility');
+		$debug = new File($this->logPath . 'debug.log');
+		$error = new File($this->logPath . 'error.log');
+		$debugSize = $debug->size();
+		$errorSize = $error->size();
+		if ($debugSize || $errorSize) {
+			return true;
+		}
+		return false;
+	}
 
 /**
  * Create the cache config for sending email
@@ -182,7 +188,7 @@ class ToolsComponent extends Component {
  * @return void
  */
 	protected function _createCacheConfig() {
-		if (Configure::read('Cache.disable') === true || Cache::config('log_tools')) {
+		if (Configure::read('Cache.disable') === true || Cache::config('log_files')) {
 			return;
 		}
 		$cache = array(
@@ -190,10 +196,10 @@ class ToolsComponent extends Component {
 		    'engine' => 'File',
 		    'path' => CACHE
 		);
-		if (isset($this->settings['cache'])) {
+		if (!empty($this->settings['cache'])) {
 			$cache = array_merge($cache, $this->settings['cache']);
 		}
-		Cache::config('log_tools', $cache);
+		Cache::config('log_files', $cache);
 	}
 
 /**
@@ -202,12 +208,13 @@ class ToolsComponent extends Component {
  * @return boolean
  */
 	protected function _checkState() {
-		$config = Cache::config('log_tools');
+		$config = Cache::config('log_files');
+		
 		if (empty($config)) {
 			$this->_createCacheConfig();
 		}
-		$cacheData = Cache::read($this->cacheKey, 'log_tools');
-		if (is_array($cacheData) && !empty($cacheData['sended']) && ($cacheData['sended'] === true)) {
+		$cacheData = Cache::read($this->cacheKey, 'log_files');
+		if (!empty($cacheData) && is_array($cacheData) && !empty($cacheData['sended']) && ($cacheData['sended'] === 1)) {
 			return true;
 		}
 		return false;
@@ -218,15 +225,15 @@ class ToolsComponent extends Component {
  *
  */
 	protected function _saveState() {
-		$config = Cache::config('log_tools');
+		$config = Cache::config('log_files');
 		if (empty($config)) {
 			$this->_createCacheConfig();
 		}
-		$cacheData = Cache::read($this->cacheKey, 'log_tools');
-		if (is_array($cacheData) && !empty($cacheData['sended']) && ($cacheData['sended'] === true)) {
-			Cache::delete($this->cacheKey, 'log_tools');
+		$cacheData = Cache::read($this->cacheKey, 'log_files');
+		if (is_array($cacheData) && !empty($cacheData['sended']) && ($cacheData['sended'] === 1)) {
+			Cache::delete($this->cacheKey, 'log_files');
 		}
-		$cacheData['sended'] = true;
-		Cache::write($this->cacheKey, $cacheData, 'log_tools');
+		$cacheData['sended'] = 1;
+		Cache::write($this->cacheKey, $cacheData, 'log_files');
 	}
 }
