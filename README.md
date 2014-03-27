@@ -8,7 +8,7 @@ This plugin contains three log tools.
 
 2.Log request params(contains request url,request time,php process time...) to mysql.
 
-3.Loop to send emails to your email(contains error.log and debug.log).
+3.Loop to send files(error.log and debug.log) to your email.
 
 
 HOW TO
