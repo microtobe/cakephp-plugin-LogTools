@@ -14,11 +14,12 @@ This plugin contains three log tools.
 HOW TO
 ------
 
-1.Add plugin in bootstrap.php.
+1.Move all files to app/Plugin/LogTools/
 
+2.Add plugin in bootstrap.php.
 	CakePlugin::load('LogTools');
 
-2.Config tools in AppController.php.
+3.Config tools in AppController.php.
 	/**
 	 * enable:This is a switch.
 	 * threshold(unit:ms):Sql time more than threshold to be loged.
