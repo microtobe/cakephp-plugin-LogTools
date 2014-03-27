@@ -14,33 +14,34 @@ This plugin contains three log tools.
 
 1.Add plugin in bootstrap.php.
 
-CakePlugin::load('LogTools');
+	CakePlugin::load('LogTools');
 
 2.Config tools in AppController.php.
 
-/**
- * threshold:执行时间大于等于threshold的sql会被记录，单位：毫秒；
- * dataSource:需要记录的数据源，默认为default
- 
- */
- 
-'LogTools.SqlLog' => array('enable' => true, 'threshold' => 10, 'dataSource' => array('default', 'master')),
-			
-/**
- * If you want to use this tool, you must inport logs.sql to mysql first.
- * enable:开关
- 
- */
- 
-'LogTools.RequestLog' => array('enable' => true),
-			
-/**
- * enable:开关；
- * urlEnable:?logSend=true开关；
- * autoClear:是否自动清理log文件；
- * emailConfig:发送email的配置；
- * to:接口log的邮箱
- 
- */
- 
-'LogTools.LogFiles' => array('enable' => true, 'urlEnable' => true, 'emailConfig' => 'send', 'to' => 'name@email.com'),
+	/**
+	 * enable:This is a switch.
+	 * threshold(unit:ms):Sql time more than threshold to be loged.
+	 * dataSource:The dataSource wanted to log, default value:default.
+	 
+	 */
+	 
+	'LogTools.SqlLog' => array('enable' => true, 'threshold' => 10, 'dataSource' => array('default', 'others')),
+				
+	/**
+	 * If you want to use this tool, you must inport logs.sql to mysql first.
+	 * enable:This is a switch.
+	 
+	 */
+	 
+	'LogTools.RequestLog' => array('enable' => true),
+				
+	/**
+	 * enable:This is a switch.
+	 * urlEnable:If you want to use '?logSend=true' after url, you should set to true; This could send email immediately.
+	 * autoClear:If you want to clear log files to null after sended, you should set to true.
+	 * emailConfig:The config to send email, this file should be in 'app/Config/', such as 'send.php'.
+	 * to:The email address you want to receive logs.
+	 
+	 */
+	 
+	'LogTools.LogFiles' => array('enable' => true, 'urlEnable' => true, 'emailConfig' => 'send', 'to' => 'name@email.com'),
