@@ -11,10 +11,10 @@ class LogFilesComponent extends Component {
 /**
  * Settings for the Component
  *
- * - urlEnable - Force the tools to run even if autoRun == false. Default = false
- * - autoRun - Automatically run the tools. If set to false, tools can be triggered by adding
- *    `?logSend=true` to your URL if urlEnable is set to true.
- * - email - Who the log email to.
+ * - urlEnable - Add `?logSend=true` to url for sending email immediately.
+ * - autoClear - Clear log files to null after sended, you should set to true.
+ * - emailConfig - Send email config.
+ * - to - Who the log email to.
  *
  * @var array
  */
@@ -52,7 +52,7 @@ class LogFilesComponent extends Component {
  *
  * @var string
  */
-	protected $cacheDuration = '+10 hours';
+	protected $cacheDuration = '+24 hours';
 
 /**
  * Status whether component is enable or disable
@@ -80,7 +80,6 @@ class LogFilesComponent extends Component {
 		$this->controller = $collection->getController();
 		
 		parent::__construct($collection, array_merge($this->settings, (array)$settings));
-// 		$this->cacheKey .= '_' . $this->Session->read('Config.userAgent');
 		if ($this->settings['enable']) {
 			$this->enabled = true;
 		}
@@ -99,11 +98,10 @@ class LogFilesComponent extends Component {
 		}
 		
 		if ($this->enabled && Validation::email($this->settings['to']) && $this->_checkFileSize()) {
-// 			debug(Cache::read($this->cacheKey, 'log_files'));
 			$this->_saveState();
 			CakeLog::write('debug', serialize($this->_sendEmail($this->settings['to'], $this->settings['emailConfig'])));
 			
-			//清空log文件
+			//clear log files
 			if ($this->settings['autoClear']) {
 				$this->_clearLog();
 			}
@@ -113,6 +111,7 @@ class LogFilesComponent extends Component {
 	/**
 	 * Send email, it contains log files as attachments.
 	 * @param string $to
+	 * @param array $emailConfig
 	 */
 	protected function _sendEmail($to = '', $emailConfig = '') {
 		if (is_dir($this->logPath) && !empty($to) && !empty($emailConfig)) {
@@ -168,6 +167,7 @@ class LogFilesComponent extends Component {
 	
 	/**
 	 * This function is get file size
+	 
 	 * @return bool
 	 */
 	private function _checkFileSize() {
@@ -223,6 +223,7 @@ class LogFilesComponent extends Component {
 /**
  * Save the current state of the tools varibles to the cache file.
  *
+ * @return void
  */
 	protected function _saveState() {
 		$config = Cache::config('log_files');

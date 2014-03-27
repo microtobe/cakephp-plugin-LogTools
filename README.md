@@ -22,7 +22,7 @@ HOW TO
 	/**
 	 * enable:This is a switch.
 	 * threshold(unit:ms):Sql time more than threshold to be loged.
-	 * dataSource:The dataSource wanted to log, default value:default.	 
+	 * dataSource:The dataSource wanted to log, default value:default.
 	 */	 
 	'LogTools.SqlLog' => array('enable' => true, 'threshold' => 10, 'dataSource' => array('default', 'others')),
 				

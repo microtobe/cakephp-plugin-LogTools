@@ -1,23 +1,21 @@
 <?php
 /**
  * Class SqlLogComponent
- *
- * @since         SqlLog 0.1
  */
 class SqlLogComponent extends Component {
 
 /**
  * Settings for the Component
  *
- * - log - if log enable. Default = false
+ * - enable - If log enable. Default = false
+ * - threshold(unit:ms):Sql time more than threshold to be loged.
+ * - dataSource:The dataSource wanted to log, default value:default.	 
  *
  * @var array
  */
 	public $settings = array(
 			'enable' => false,
-			//sql执行时间记录门限，即执行时间大于等于门限的sql会被记录，单位：毫秒（ms）
 			'threshold' => 100,
-			//需要记录的数据源，默认为default
 			'dataSource' => array('default'),
 	);
 
@@ -40,7 +38,6 @@ class SqlLogComponent extends Component {
  *
  * @param ComponentCollection $collection
  * @param array $settings
- * @return \ToolbarComponent
  */
 	public function __construct(ComponentCollection $collection, $settings = array()) {
 		$this->_controller = $collection->getController();

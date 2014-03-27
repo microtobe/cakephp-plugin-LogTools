@@ -11,7 +11,7 @@ class RequestLogComponent extends Component {
 /**
  * Settings for the Component
  *
- * - log - if log enable. Default = false
+ * - enable - if log enable. Default = false
  *
  * @var array
  */
@@ -38,7 +38,6 @@ class RequestLogComponent extends Component {
  *
  * @param ComponentCollection $collection
  * @param array $settings
- * @return \ToolbarComponent
  */
 	public function __construct(ComponentCollection $collection, $settings = array()) {
 		$this->_controller = $collection->getController();
@@ -51,8 +50,8 @@ class RequestLogComponent extends Component {
 	 * @see Component::initialize()
 	 */
 	public function initialize(Controller $controller) {
-		//process_time计时开始
-		DebugTimer::start('process_time', '接口执行时间');
+		//process_time timing start
+		DebugTimer::start('process_time', 'Php process time');
 	}
 	
 	/**
@@ -63,7 +62,7 @@ class RequestLogComponent extends Component {
 		if ($this->settings['enable']) {
 			$this->enabled = true;
 		}
-// 		debug(DebugTimer::getAll());
+
 		if ($this->enabled) {
 			$this->_save();
 		}
@@ -74,7 +73,7 @@ class RequestLogComponent extends Component {
 	 * @param string $to
 	 */
 	protected function _save() {
-		//process_time计时结束
+		//process_time timing stop
 		DebugTimer::stop('process_time');
 		
 		$data['url'] = $this->_getUrl();
@@ -92,16 +91,15 @@ class RequestLogComponent extends Component {
 	}
 	
 	/**
-	 * 请求时间（接口实际执行时间），单位：毫秒
+	 * Fetch process time, Unit:ms
 	 */
 	private function _getProcessTime() {
-// 		return $this->_getRequestTime() - DebugTimer::getAll()['process_time_compute']['time'] * 1000;
 		$timeAll = DebugTimer::getAll();
 		return $timeAll['process_time']['time'] * 1000;
 	}
 	
 	/**
-	 * 请求时间（整个过程），单位：毫秒
+	 * Fetch request time,Unit:ms
 	 */
 	private function _getRequestTime() {
 		return DebugTimer::requestTime() * 1000;
@@ -115,15 +113,16 @@ class RequestLogComponent extends Component {
 	}
 	
 	/**
-	 * 接口地址
+	 * Fetch url
 	 */
 	private function _getUrl() {
 		return $this->_controller->request->url;
 	}
 	
 	/**
-	 * 请求参数
-	 * @return string
+	 * Fetch request params
+	 
+	 * @return json
 	 */
 	private function _getParams() {
 		$params = array_filter(am($this->_controller->request->query, $this->_controller->request->data, $this->_controller->request->form));
