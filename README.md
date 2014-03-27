@@ -23,6 +23,7 @@ CakePlugin::load('LogTools');
 'LogTools.SqlLog' => array('enable' => true, 'threshold' => 10, 'dataSource' => array('default', 'master')),
 			
 /**
+ * If you want to use this tool, you must inport logs.sql to mysql first.
  * enable:开关
  */
 'LogTools.RequestLog' => array('enable' => true),
