@@ -21,18 +21,14 @@ This plugin contains three log tools.
 	/**
 	 * enable:This is a switch.
 	 * threshold(unit:ms):Sql time more than threshold to be loged.
-	 * dataSource:The dataSource wanted to log, default value:default.
-	 
-	 */
-	 
+	 * dataSource:The dataSource wanted to log, default value:default.	 
+	 */	 
 	'LogTools.SqlLog' => array('enable' => true, 'threshold' => 10, 'dataSource' => array('default', 'others')),
 				
 	/**
 	 * If you want to use this tool, you must inport logs.sql to mysql first.
-	 * enable:This is a switch.
-	 
-	 */
-	 
+	 * enable:This is a switch.	 
+	 */	 
 	'LogTools.RequestLog' => array('enable' => true),
 				
 	/**
@@ -40,8 +36,6 @@ This plugin contains three log tools.
 	 * urlEnable:If you want to use '?logSend=true' after url, you should set to true; This could send email immediately.
 	 * autoClear:If you want to clear log files to null after sended, you should set to true.
 	 * emailConfig:The config to send email, this file should be in 'app/Config/', such as 'send.php'.
-	 * to:The email address you want to receive logs.
-	 
-	 */
-	 
+	 * to:The email address you want to receive logs.	 
+	 */	 
 	'LogTools.LogFiles' => array('enable' => true, 'urlEnable' => true, 'emailConfig' => 'send', 'to' => 'name@email.com'),
