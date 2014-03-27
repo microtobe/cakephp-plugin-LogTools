@@ -6,7 +6,7 @@ This plugin contains three log tools.
 
 1.Log slow sql query to debug.log.
 
-2.Log request params(contains url,query time,php process time...) to mysql.
+2.Log request params(contains request url,request time,php process time...) to mysql.
 
 3.Loop to send emails to your email(contains error.log and debug.log).
 
@@ -19,7 +19,6 @@ HOW TO
 	CakePlugin::load('LogTools');
 
 2.Config tools in AppController.php.
-
 	/**
 	 * enable:This is a switch.
 	 * threshold(unit:ms):Sql time more than threshold to be loged.
