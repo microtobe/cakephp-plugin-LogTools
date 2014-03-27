@@ -27,7 +27,7 @@ HOW TO
 	'LogTools.SqlLog' => array('enable' => true, 'threshold' => 10, 'dataSource' => array('default', 'others')),
 				
 	/**
-	 * If you want to use this tool, you must inport logs.sql to mysql first.
+	 * If you want to use this tool, you must import logs.sql to mysql first.
 	 * enable:This is a switch.	 
 	 */	 
 	'LogTools.RequestLog' => array('enable' => true),
