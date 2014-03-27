@@ -2,6 +2,7 @@ cakephp-LogsTools
 =================
 
 This plugin contains three log tools.
+-------
 
 1.Log slow sql query to debug.log.
 
@@ -10,7 +11,8 @@ This plugin contains three log tools.
 3.Loop to send emails to your email(contains error.log and debug.log).
 
 
-<h1>HOW TO</h1>
+HOW TO
+------
 
 1.Add plugin in bootstrap.php.
 
