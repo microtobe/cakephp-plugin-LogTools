@@ -125,7 +125,7 @@ class RequestLogComponent extends Component {
 	 * @return json
 	 */
 	private function _getParams() {
-		$params = array_filter(am($this->_controller->request->query, $this->_controller->request->data, $this->_controller->request->form));
+		$params = am($this->_controller->request->query, $this->_controller->request->data, $this->_controller->request->form);
 		//过滤参数：token, password
 		unset($params['token'], $params['password']);
 		return $params? json_encode($params): '';
